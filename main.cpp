@@ -1,7 +1,7 @@
 /*
  * Title:	main.cpp
  * Author:	Dilpreet S. Chana
- * 
+ * Description:	Dual camera range finder
 **/
 
 #include <cstdio>
@@ -12,8 +12,8 @@
 #include "opencv2/objdetect.hpp"
 #include "opencv2/imgproc.hpp"
 
-#define FOCAL_LENGTH 0	       // Focal length of both camereas
-#define CAMERA_DIFFERENCE 0  // Distance between cameras
+#define FOCAL_LENGTH 60	      // Focal length of both camereas
+#define CAMERA_DIFFERENCE 80  // Distance between cameras
 #define FACE_CASCADE "data/haarcascade_frontalface_alt.xml"
 
 using namespace cv;
@@ -34,7 +34,7 @@ int main() {
 	if (!face_cascade.load(FACE_CASCADE)) return -1;
 
 	while (cap1.read(frame1) && cap2.read(frame2)) {
-		printf("%f\n", calculateDistance(findTarget(frame1, frame2)));
+		printf("%f mm\n", calculateDistance(findTarget(frame1, frame2)));
 
 		// Esc to end
 		if (char(waitKey(10)) == 27) {
