@@ -32,7 +32,6 @@ Point findPattern(Mat& frame);
 double calculateDistance(float d);
 
 int main() {
-	printf("START\n");
 	VideoCapture cap1(0);
 	VideoCapture cap2(1);
 	Mat frame1, frame2;
@@ -71,13 +70,22 @@ double calculateDeviation(Mat& frame1, Mat& frame2, VideoCapture c) {
 	Point p1 = findPattern(frame1);
 	Point p2 = findPattern(frame2);
 
-	if (p1.x == 0 && p1.y == 0 && p2.x == 0 && p2.y == 0) return 0;
+	if ((p1.x == 0 && p1.y == 0) || (p2.x == 0 && p2.y == 0)) return 0;
+
+	// Frames need to swap
+	if (p1.x > p2.x) {
+		Point tmp = p1;
+		p1 = p2;
+		p2 = tmp;
+	}
 
 	// Calculate deviation on camera sensor
-	double s1 = (LIGHT_SENSOR_WIDTH / 2) * (p1.x - c.get(CV_CAP_PROP_FRAME_WIDTH) / 2) / (c.get(CV_CAP_PROP_FRAME_WIDTH) / 2);
-	double s2 = (LIGHT_SENSOR_WIDTH / 2) * (p2.x - c.get(CV_CAP_PROP_FRAME_WIDTH) / 2) / (c.get(CV_CAP_PROP_FRAME_WIDTH) / 2);
+	// Assumption: p1 contains data from left camera
+	//	       p2 contains data from right camera
+	double s1 = (LIGHT_SENSOR_WIDTH / 2) * (p1.x - c.get(CV_CAP_PROP_FRAME_WIDTH) / 2) / (c.get(CV_CAP_PROP_FRAME_WIDTH) / 2);  // -DF
+	double s2 = (LIGHT_SENSOR_WIDTH / 2) * (p2.x - c.get(CV_CAP_PROP_FRAME_WIDTH) / 2) / (c.get(CV_CAP_PROP_FRAME_WIDTH) / 2);  // EG
 
-	return abs(s1) + abs(s2);
+	return s2 - s1;
 }
 
 Point findPattern(Mat& frame) {
