@@ -12,13 +12,8 @@
 #include "opencv2/objdetect.hpp"
 #include "opencv2/imgproc.hpp"
 
-// Camera properties (Microsoft HD 3000)
-#define FOCAL_LENGTH 60
-#define FLANGE_FOCAL_DISTANCE 14.0169
-#define CAMERA_DIFFERENCE 95
-#define LIGHT_SENSOR_WIDTH 17.3
-#define LIGHT_SENSOR_HEIGHT 13
-
+#define FOCAL_LENGTH 60	      // Focal length of both camereas
+#define CAMERA_DIFFERENCE 95  // Distance between cameras
 #define FACE_CASCADE "data/haarcascade_frontalface_alt.xml"
 
 using namespace cv;
@@ -27,8 +22,8 @@ using namespace std;
 // Global constants
 CascadeClassifier face_cascade;
 
-double calculateDeviation(Mat& frame1, Mat& frame2, VideoCapture c);
-Point findPattern(Mat& frame);
+double findTarget(Mat &frame1, Mat &frame2, VideoCapture c);
+Point findFaces(Mat &frame);
 double calculateDistance(float d);
 
 int main() {
@@ -53,7 +48,7 @@ int main() {
 	}
 
 	while (cap1.read(frame1) && cap2.read(frame2)) {
-		printf("%f mm\n", calculateDistance(calculateDeviation(frame1, frame2, cap1)));
+		printf("%f cm\n", calculateDistance(findTarget(frame1, frame2, cap1)));
 
 		imshow("Cam1", frame1);
 		imshow("Cam2", frame2);
@@ -67,20 +62,17 @@ int main() {
 	return 0;
 }
 
-double calculateDeviation(Mat& frame1, Mat& frame2, VideoCapture c) {
-	Point p1 = findPattern(frame1);
-	Point p2 = findPattern(frame2);
+double findTarget(Mat &frame1, Mat &frame2, VideoCapture c) {
+	Point p1 = findFaces(frame1);
+	Point p2 = findFaces(frame2);
 
-	//if (p1.x == 0 && p1.y == 0 && p2.x == 0 && p2.y == 0) return 0;
+	Point d(p1.x + p2.x - 2 * c.get(CV_CAP_PROP_FRAME_WIDTH),
+		p1.y + p2.y - 2 * c.get(CV_CAP_PROP_FRAME_HEIGHT));
 
-	// Calculate deviation on camera sensor
-	double s1 = (LIGHT_SENSOR_WIDTH / 2) * (p1.x - c.get(CV_CAP_PROP_FRAME_WIDTH) / 2) / (c.get(CV_CAP_PROP_FRAME_WIDTH) / 2);
-	double s2 = (LIGHT_SENSOR_WIDTH / 2) * (p2.x - c.get(CV_CAP_PROP_FRAME_WIDTH) / 2) / (c.get(CV_CAP_PROP_FRAME_WIDTH) / 2);
-
-	return abs(s1) + abs(s2);
+	return sqrt(pow(d.x, 2) + pow(d.y, 2));
 }
 
-Point findPattern(Mat& frame) {
+Point findFaces(Mat &frame) {
 	// Perhaps find faces for round 1
 	vector<Rect> faces;
 	Mat frame_gray, frame_gray_blur;
@@ -103,11 +95,9 @@ Point findPattern(Mat& frame) {
 		}
 	}
 
-	rectangle(frame, main_face, Scalar(155, 155, 155), 5);
-
 	return Point(main_face.x + main_face.width / 2, main_face.y + main_face.height / 2);
 }
 
 double calculateDistance(float d) {
-	return FLANGE_FOCAL_DISTANCE * CAMERA_DIFFERENCE / d;
+	return FOCAL_LENGTH * CAMERA_DIFFERENCE / d;
 }
