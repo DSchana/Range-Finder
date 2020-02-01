@@ -20,7 +20,6 @@
 #define LIGHT_SENSOR_HEIGHT 13
 
 #define TILE_SIZE 2
-#define FACE_CASCADE "data/haarcascade_frontalface_alt.xml"
 #define MAX_DIST 4000
 #define THRESHOLD 100
 
@@ -33,8 +32,8 @@ CascadeClassifier face_cascade;
 double calculateDistance(Point p1, Point p2, VideoCapture c);
 
 int main() {
-    VideoCapture cap1("data/frame_left.jpg");
-    VideoCapture cap2("data/frame_right.jpg");
+    VideoCapture cap1("../Data/frame_left.jpg");
+    VideoCapture cap2("../Data/frame_right.jpg");
     //VideoCapture cap1(0);
     //VideoCapture cap2(1);
     Mat frame1, frame2, depth_map;
@@ -77,7 +76,7 @@ int main() {
 
                     if (comp < THRESHOLD) {
                         double dist = calculateDistance(Point(x, y), Point(tx, y), cap1);
-                        rectangle(depth_map, Rect(x, y, TILE_SIZE, TILE_SIZE), Scalar(dist / MAX_DIST * 255), CV_FILLED);
+                        rectangle(depth_map, Rect(x, y, TILE_SIZE, TILE_SIZE), Scalar(dist / MAX_DIST * 255), FILLED);
 
                         break;
                     }
@@ -114,9 +113,9 @@ double calculateDistance(Point p1, Point p2, VideoCapture c) {
 
     // Calculate deviation on camera sensor
     // Assumption: p1 contains data from left camera
-    //           p2 contains data from right camera
-    double s1 = (LIGHT_SENSOR_WIDTH / 2) * (p1.x - c.get(CV_CAP_PROP_FRAME_WIDTH) / 2) / (c.get(CV_CAP_PROP_FRAME_WIDTH) / 2);  // -DF
-    double s2 = (LIGHT_SENSOR_WIDTH / 2) * (p2.x - c.get(CV_CAP_PROP_FRAME_WIDTH) / 2) / (c.get(CV_CAP_PROP_FRAME_WIDTH) / 2);  // EG
+    //             p2 contains data from right camera
+    double s1 = (LIGHT_SENSOR_WIDTH / 2) * (p1.x - c.get(CAP_PROP_FRAME_WIDTH) / 2) / (c.get(CAP_PROP_FRAME_WIDTH) / 2);  // -DF
+    double s2 = (LIGHT_SENSOR_WIDTH / 2) * (p2.x - c.get(CAP_PROP_FRAME_WIDTH) / 2) / (c.get(CAP_PROP_FRAME_WIDTH) / 2);  // EG
 
     return FLANGE_FOCAL_DISTANCE * CAMERA_DIFFERENCE / (s2 - s1);
 }

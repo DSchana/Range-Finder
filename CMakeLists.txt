@@ -1,7 +1,11 @@
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 cmake_minimum_required(VERSION 2.8)
-project( Playground )
-find_package( OpenCV )
-include_directories( ${OpenCV_INCLUDE_DIRS} )
-add_executable( Playground "main.cpp" )
-target_link_libraries( Playground ${OpenCV_LIBS} )
+project(Stereovision)
+find_package(OpenCV)
+
+set(CMAKE_CXX_STANDARD 20)
+
+file(GLOB CXX_EXEC "src/*.cpp")
+
+add_executable(Stereovision ${CXX_EXEC})
+target_include_directories(Stereovision PUBLIC inc/ ${OpenCV_INCLUDE_DIRS})
+target_link_libraries(Stereovision ${OpenCV_LIBS})
