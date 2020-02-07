@@ -32,8 +32,8 @@ CascadeClassifier face_cascade;
 double calculateDistance(Point p1, Point p2, VideoCapture c);
 
 int main() {
-    VideoCapture cap1("../Data/frame_left.jpg");
-    VideoCapture cap2("../Data/frame_right.jpg");
+    VideoCapture cap1("../Data/desk_frame_left.jpg");
+    VideoCapture cap2("../Data/desk_frame_right.jpg");
     //VideoCapture cap1(0);
     //VideoCapture cap2(1);
     Mat frame1, frame2, depth_map;
