@@ -91,11 +91,7 @@ int main() {
         imshow("Depth Map", depth_map);
 
         // Esc to end
-        if (char(waitKey(10)) == 27) {
-            break;
-        }
-
-        while (true) {}
+        while (char(waitKey(10)) != 27) {}
     }
 
     return 0;
