@@ -20,7 +20,7 @@
 #define LIGHT_SENSOR_HEIGHT 13
 
 #define TILE_SIZE 2
-#define MAX_DIST 4000
+#define MAX_DIST 40000
 #define THRESHOLD 100
 
 using namespace cv;
@@ -37,6 +37,7 @@ int main() {
     //VideoCapture cap1(0);
     //VideoCapture cap2(1);
     Mat frame1, frame2, depth_map;
+    Mat grey1, grey2, corner_map;
     Mat edge1, edge2;
 
     if (!cap1.isOpened()) {
@@ -50,10 +51,29 @@ int main() {
     }
 
     while (cap1.read(frame1) && cap2.read(frame2)) {
+        // Corner detection
+        cvtColor(frame1, grey1, COLOR_RGB2GRAY);
+        cvtColor(frame2, grey2, COLOR_RGB2GRAY);
+
+        std::vector<Point2f> corners;
+        // TODO: Make this bitch work
+        corner_map = Mat(frame1.rows, frame1.cols, CV_8UC1, Scalar(0));
+
+        goodFeaturesToTrack(grey1, corner_map, 3000, 0.01, 7);
+        goodFeaturesToTrack(grey2, corner_map, 3000, 0.01, 7);
+
+        // TODO: Map corners points in a matrix
+
+        for (auto c : corners) {
+            circle(grey1, c, 2, Scalar(0, 255, 0), -1);
+            circle(grey2, c, 2, Scalar(0, 255, 0), -1);
+        }
+
+        // Edge detection
         Canny(frame1, edge1, 50, 100);
         Canny(frame2, edge2, 50, 100);
 
-        depth_map = Mat(edge1.rows, edge1.cols, CV_8UC1, Scalar(0));
+        depth_map = Mat(frame1.rows, frame1.cols, CV_8UC2, Scalar(0, 0));
 
         for (int y = 0; y < edge2.rows - TILE_SIZE; y += TILE_SIZE) {
             for (int x = 0; x < edge2.cols - TILE_SIZE; x += TILE_SIZE) {
@@ -88,6 +108,9 @@ int main() {
         imshow("Cam2", frame2);
         imshow("Edge1", edge1);
         imshow("Edge2", edge2);
+        imshow("Grey1", grey1);
+        imshow("Grey2", grey2);
+        imshow("Corner map", corner_map);
         imshow("Depth Map", depth_map);
 
         // Esc to end
